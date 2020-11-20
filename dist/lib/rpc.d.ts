@@ -7,19 +7,34 @@ interface QueueItem {
     resolve: Function;
     reject: Function;
 }
+interface PendingReqs {
+    [index: string]: QueueItem[];
+}
+interface IData {
+    name: string;
+    payload: any;
+    ident: string;
+}
+declare type IStream = any;
 export declare class RPC implements IRPC {
     isReady: boolean;
     client: FlowGRPCWeb;
-    stream: any;
+    stream: IStream;
     queue: QueueItem[];
-    pending: QueueItem[];
+    pending: PendingReqs;
+    intakeHandler: Function | undefined;
+    verbose: boolean;
     constructor(options?: any);
+    initIntake(stream: IStream): void;
+    handleIntake(o: IData): void;
+    setIntakeHandler(fn: Function): void;
     processQueue(): void;
+    clearPending(): void;
     request(method: string, data: any, resolve: Function, reject: Function): void;
-    getBlock(blockHash: string): Promise<Api.BlockResponse>;
+    getBlock(hash: string): Promise<Api.BlockResponse>;
     getAddressTransactions(address: string, limit: number, skip: number): Promise<Api.Transaction[]>;
     getUtxos(address: string, limit: number, skip: number): Promise<Api.Utxo[]>;
-    postTx(rawTransaction: string): Promise<Api.SuccessResponse>;
+    postTx(transactionHex: string): Promise<Api.SuccessResponse>;
 }
 export {};
 //# sourceMappingURL=rpc.d.ts.map
