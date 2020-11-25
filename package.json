@@ -1,7 +1,7 @@
 {
-  "name": "kaspa-module-web",
+  "name": "kaspa-wallet-grpc-web",
   "version": "0.0.1",
-  "description": "Web dependencies for kaspa-module",
+  "description": "Web gRPC client for kaspa-wallet",
   "main": "dist/index.js",
   "author": "Denis.S",
   "license": "ISC",
