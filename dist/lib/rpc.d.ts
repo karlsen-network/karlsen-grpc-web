@@ -34,7 +34,7 @@ export declare class RPC implements IRPC {
     getBlock(hash: string): Promise<Api.BlockResponse>;
     getAddressTransactions(address: string, limit: number, skip: number): Promise<Api.Transaction[]>;
     getUtxos(address: string, limit: number, skip: number): Promise<Api.Utxo[]>;
-    postTx(transactionHex: string): Promise<Api.SuccessResponse>;
+    postTx(tx: Api.TransactionRequest): Promise<Api.TransactionResponse>;
 }
 export {};
 //# sourceMappingURL=rpc.d.ts.map

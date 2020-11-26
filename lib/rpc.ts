@@ -117,9 +117,9 @@ export class RPC implements IRPC{
 			this.request('getUTXOsByAddressRequest', {address, limit, skip}, resolve, reject);
 		})
 	}
-	postTx(transactionHex: string): Promise<Api.SuccessResponse>{
+	postTx(tx: Api.TransactionRequest): Promise<Api.TransactionResponse>{
 		return new Promise((resolve, reject)=>{
-			this.request('submitTransactionRequest', {transactionHex}, resolve, reject);
+			this.request('submitTransactionRequest', tx, resolve, reject);
 		})
 	}
 }
