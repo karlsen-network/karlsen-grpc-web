@@ -1,6 +1,6 @@
 /// <reference types="flow-grpc-web" />
 import { FlowGRPCWeb } from '@aspectron/flow-grpc-web';
-import { IRPC, Api } from '../types/custom-types';
+import { IRPC, RPC as Rpc } from '../types/custom-types';
 interface QueueItem {
     method: string;
     data: any;
@@ -30,11 +30,11 @@ export declare class RPC implements IRPC {
     setIntakeHandler(fn: Function): void;
     processQueue(): void;
     clearPending(): void;
-    request(method: string, data: any, resolve: Function, reject: Function): void;
-    getBlock(hash: string): Promise<Api.BlockResponse>;
-    getAddressTransactions(address: string, limit: number, skip: number): Promise<Api.Transaction[]>;
-    getUtxos(address: string, limit: number, skip: number): Promise<Api.Utxo[]>;
-    postTx(tx: Api.TransactionRequest): Promise<Api.TransactionResponse>;
+    request(method: string, data: any): Promise<unknown>;
+    getBlock(hash: string): Promise<Rpc.BlockResponse>;
+    getTransactionsByAddresses(startingBlockHash: string, addresses: string[]): Promise<Rpc.TransactionsByAddressesResponse>;
+    getUTXOsByAddress(addresses: string[]): Promise<Rpc.UTXOsByAddressesResponse>;
+    submitTransaction(tx: Rpc.SubmitTransactionRequest): Promise<Rpc.SubmitTransactionResponse>;
 }
 export {};
 //# sourceMappingURL=rpc.d.ts.map

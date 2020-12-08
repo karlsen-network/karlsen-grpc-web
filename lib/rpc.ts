@@ -1,6 +1,6 @@
 import {FlowGRPCWeb} from '@aspectron/flow-grpc-web';
 //const FlowGRPCWeb = new FlowGRPCWeb();
-import {IRPC, Api} from '../types/custom-types';
+import {IRPC, RPC as Rpc} from '../types/custom-types';
 interface QueueItem{
 	method:string,
 	data:any,
@@ -98,28 +98,22 @@ export class RPC implements IRPC{
             this.pending[key] = [];
         });
     }
-	request(method:string, data:any, resolve:Function, reject:Function){
-		this.queue.push({method, data, resolve, reject});
-		this.processQueue();
-	}
-	getBlock(hash:string): Promise<Api.BlockResponse>{
+	request(method:string, data:any){
 		return new Promise((resolve, reject)=>{
-			this.request('getBlockRequest', {hash, includeBlockVerboseData:true}, resolve, reject);
+			this.queue.push({method, data, resolve, reject});
+			this.processQueue();
 		})
 	}
-	getAddressTransactions(address:string, limit:number, skip:number): Promise<Api.Transaction[]>{
-		return new Promise((resolve, reject)=>{
-			this.request('getAddressTransactions', {address, limit, skip}, resolve, reject);
-		})
+	getBlock(hash:string): Promise<Rpc.BlockResponse>{
+		return this.request('getBlockRequest', {hash, includeBlockVerboseData:true}) as Promise<Rpc.BlockResponse>;
 	}
-	getUtxos(address:string, limit:number, skip:number): Promise<Api.Utxo[]>{
-		return new Promise((resolve, reject)=>{
-			this.request('getUTXOsByAddressRequest', {address, limit, skip}, resolve, reject);
-		})
+	getTransactionsByAddresses(startingBlockHash:string, addresses:string[]): Promise<Rpc.TransactionsByAddressesResponse>{
+		return this.request('getTransactionsByAddressesRequest', {startingBlockHash, addresses}) as Promise<Rpc.TransactionsByAddressesResponse>;
 	}
-	postTx(tx: Api.TransactionRequest): Promise<Api.TransactionResponse>{
-		return new Promise((resolve, reject)=>{
-			this.request('submitTransactionRequest', tx, resolve, reject);
-		})
+	getUTXOsByAddress(addresses:string[]): Promise<Rpc.UTXOsByAddressesResponse>{
+		return this.request('getUTXOsByAddressRequest', {addresses}) as Promise<Rpc.UTXOsByAddressesResponse>;
+	}
+	submitTransaction(tx: Rpc.SubmitTransactionRequest): Promise<Rpc.SubmitTransactionResponse>{
+		return this.request('submitTransactionRequest', tx) as Promise<Rpc.SubmitTransactionResponse>;
 	}
 }
