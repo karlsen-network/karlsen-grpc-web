@@ -1,21 +1,9 @@
 import {FlowGRPCWeb} from '@aspectron/flow-grpc-web';
 //const FlowGRPCWeb = new FlowGRPCWeb();
-import {IRPC, RPC as Rpc} from '../types/custom-types';
-interface QueueItem{
-	method:string,
-	data:any,
-	resolve:Function,
-	reject:Function
-}
-interface PendingReqs {
-	[index:string]:QueueItem[];
-}
-interface IData{
-	name:string,
-	payload:any,
-	ident:string
-}
-declare type IStream = any;
+import {IRPC, RPC as Rpc,
+	SubscriberItem, SubscriberItemMap,
+	QueueItem, PendingReqs, IData, IStream
+} from '../types/custom-types';
 
 export class RPC implements IRPC{
 	isReady:boolean = false;
@@ -25,6 +13,7 @@ export class RPC implements IRPC{
 	pending:PendingReqs;
 	intakeHandler:Function|undefined;
 	verbose:boolean = false;
+	subscribers: SubscriberItemMap = new Map();
 
 	constructor(options:any={}){
 		this.pending = {};
@@ -66,6 +55,13 @@ export class RPC implements IRPC{
             	if(pendingItem)
                 	pendingItem.resolve(o.payload);
             }
+
+            let subscribers:SubscriberItem[]|undefined = this.subscribers.get(o.name);
+			if(subscribers){
+				subscribers.map(subscriber=>{
+					subscriber.callback(o.payload)
+				})
+			}
         }
     }
 
@@ -98,22 +94,56 @@ export class RPC implements IRPC{
             this.pending[key] = [];
         });
     }
-	request(method:string, data:any){
-		return new Promise((resolve, reject)=>{
+    subscribe<T>(subject:string, data:any={}, callback:Function):Rpc.SubPromise<T>{
+		if(typeof data == 'function'){
+			callback = data;
+			data = {};
+		}
+
+		if(!this.client)
+			return Promise.reject('not connected') as Rpc.SubPromise<T>;
+
+		let eventName = subject.replace("notify", "").replace("Request", "Notification")
+		eventName = eventName[0].toLowerCase()+eventName.substr(1);
+		console.log("subscribe:eventName", eventName)
+
+		let subscribers:SubscriberItem[]|undefined = this.subscribers.get(eventName);
+		if(!subscribers){
+			subscribers = [];
+			this.subscribers.set(eventName, subscribers);
+		}
+		let uid = (Math.random()*100000 + Date.now()).toFixed(0);
+		subscribers.push({uid, callback});
+
+		let p = this.request(subject, data) as Rpc.SubPromise<T>;
+
+		p.uid = uid;
+		return p;
+	}
+	request<T>(method:string, data:any){
+		return new Promise<T>((resolve, reject)=>{
 			this.queue.push({method, data, resolve, reject});
 			this.processQueue();
 		})
 	}
-	getBlock(hash:string): Promise<Rpc.BlockResponse>{
-		return this.request('getBlockRequest', {hash, includeBlockVerboseData:true}) as Promise<Rpc.BlockResponse>;
+
+	subscribeChainChanged(data:any, callback:Function){
+		return this.subscribe<Rpc.NotifyChainChangedResponse>("notifyChainChangedRequest", data, callback);
 	}
-	getTransactionsByAddresses(startingBlockHash:string, addresses:string[]): Promise<Rpc.TransactionsByAddressesResponse>{
-		return this.request('getTransactionsByAddressesRequest', {startingBlockHash, addresses}) as Promise<Rpc.TransactionsByAddressesResponse>;
+	subscribeBlockAdded(data:any, callback:Function){
+		return this.subscribe<Rpc.NotifyBlockAddedResponse>("notifyBlockAddedRequest", data, callback);
 	}
-	getUTXOsByAddress(addresses:string[]): Promise<Rpc.UTXOsByAddressesResponse>{
-		return this.request('getUTXOsByAddressRequest', {addresses}) as Promise<Rpc.UTXOsByAddressesResponse>;
+
+	getBlock(hash:string){
+		return this.request<Rpc.BlockResponse>('getBlockRequest', {hash, includeBlockVerboseData:true});
 	}
-	submitTransaction(tx: Rpc.SubmitTransactionRequest): Promise<Rpc.SubmitTransactionResponse>{
-		return this.request('submitTransactionRequest', tx) as Promise<Rpc.SubmitTransactionResponse>;
+	getTransactionsByAddresses(startingBlockHash:string, addresses:string[]){
+		return this.request<Rpc.TransactionsByAddressesResponse>('getTransactionsByAddressesRequest', {startingBlockHash, addresses});
+	}
+	getUTXOsByAddress(addresses:string[]){
+		return this.request<Rpc.UTXOsByAddressesResponse>('getUTXOsByAddressRequest', {addresses});
+	}
+	submitTransaction(tx: Rpc.SubmitTransactionRequest){
+		return this.request<Rpc.SubmitTransactionResponse>('submitTransactionRequest', tx);
 	}
 }
