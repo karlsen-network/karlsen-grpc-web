@@ -170,7 +170,7 @@ export namespace RPC {
 export interface IRPC {
 	getBlock(blockHash:string): Promise<RPC.BlockResponse>;
 	getTransactionsByAddresses(startingBlockHash:string, addresses:string[]): Promise<RPC.TransactionsByAddressesResponse>;
-	getUTXOsByAddress(addresses:string[]): Promise<RPC.UTXOsByAddressesResponse>;
+	getUtxosByAddresses(addresses:string[]): Promise<RPC.UTXOsByAddressesResponse>;
 	submitTransaction(tx: RPC.SubmitTransactionRequest): Promise<RPC.SubmitTransactionResponse>;
 	request?(method:string, data:any);
 }
