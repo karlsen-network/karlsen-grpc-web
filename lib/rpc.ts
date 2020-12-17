@@ -94,7 +94,7 @@ export class RPC implements IRPC{
             this.pending[key] = [];
         });
     }
-    subscribe<T>(subject:string, data:any={}, callback:Function):Rpc.SubPromise<T>{
+    subscribe<T, R>(subject:string, data:any={}, callback:Rpc.callback<R>):Rpc.SubPromise<T>{
 		if(typeof data == 'function'){
 			callback = data;
 			data = {};
@@ -127,11 +127,14 @@ export class RPC implements IRPC{
 		})
 	}
 
-	subscribeChainChanged(data:any, callback:Function){
-		return this.subscribe<Rpc.NotifyChainChangedResponse>("notifyChainChangedRequest", data, callback);
+	subscribeChainChanged(callback:Rpc.callback<Rpc.ChainChangedNotification>){
+		return this.subscribe<Rpc.NotifyChainChangedResponse, Rpc.ChainChangedNotification>("notifyChainChangedRequest", {}, callback);
 	}
-	subscribeBlockAdded(data:any, callback:Function){
-		return this.subscribe<Rpc.NotifyBlockAddedResponse>("notifyBlockAddedRequest", data, callback);
+	subscribeBlockAdded(callback:Rpc.callback<Rpc.BlockAddedNotification>){
+		return this.subscribe<Rpc.NotifyBlockAddedResponse, Rpc.BlockAddedNotification>("notifyBlockAddedRequest", {}, callback);
+	}
+	subscribeVirtualSelectedParentBlueScoreChanged(callback:Rpc.callback<Rpc.VirtualSelectedParentBlueScoreChangedNotification>){
+		return this.subscribe<Rpc.NotifyVirtualSelectedParentBlueScoreChangedResponse, Rpc.VirtualSelectedParentBlueScoreChangedNotification>("notifyVirtualSelectedParentBlueScoreChangedRequest", {}, callback);
 	}
 
 	getBlock(hash:string){
@@ -140,10 +143,13 @@ export class RPC implements IRPC{
 	getTransactionsByAddresses(startingBlockHash:string, addresses:string[]){
 		return this.request<Rpc.TransactionsByAddressesResponse>('getTransactionsByAddressesRequest', {startingBlockHash, addresses});
 	}
-	getUTXOsByAddress(addresses:string[]){
-		return this.request<Rpc.UTXOsByAddressesResponse>('getUTXOsByAddressRequest', {addresses});
+	getUtxosByAddresses(addresses:string[]){
+		return this.request<Rpc.UTXOsByAddressesResponse>('getUtxosByAddressesRequest', {addresses});
 	}
 	submitTransaction(tx: Rpc.SubmitTransactionRequest){
 		return this.request<Rpc.SubmitTransactionResponse>('submitTransactionRequest', tx);
+	}
+	getVirtualSelectedParentBlueScore(){
+		return this.request<Rpc.VirtualSelectedParentBlueScoreResponse>('getVirtualSelectedParentBlueScoreRequest', {});
 	}
 }

@@ -16,11 +16,15 @@ export declare class RPC implements IRPC {
     setIntakeHandler(fn: Function): void;
     processQueue(): void;
     clearPending(): void;
-    subscribe<T>(subject: string, data: any, callback: Function): Rpc.SubPromise<T>;
+    subscribe<T, R>(subject: string, data: any, callback: Rpc.callback<R>): Rpc.SubPromise<T>;
     request<T>(method: string, data: any): Promise<T>;
+    subscribeChainChanged(callback: Rpc.callback<Rpc.ChainChangedNotification>): Rpc.SubPromise<Rpc.NotifyChainChangedResponse>;
+    subscribeBlockAdded(callback: Rpc.callback<Rpc.BlockAddedNotification>): Rpc.SubPromise<Rpc.NotifyBlockAddedResponse>;
+    subscribeVirtualSelectedParentBlueScoreChanged(callback: Rpc.callback<Rpc.VirtualSelectedParentBlueScoreChangedNotification>): Rpc.SubPromise<Rpc.NotifyVirtualSelectedParentBlueScoreChangedResponse>;
     getBlock(hash: string): Promise<Rpc.BlockResponse>;
     getTransactionsByAddresses(startingBlockHash: string, addresses: string[]): Promise<Rpc.TransactionsByAddressesResponse>;
-    getUTXOsByAddress(addresses: string[]): Promise<Rpc.UTXOsByAddressesResponse>;
+    getUtxosByAddresses(addresses: string[]): Promise<Rpc.UTXOsByAddressesResponse>;
     submitTransaction(tx: Rpc.SubmitTransactionRequest): Promise<Rpc.SubmitTransactionResponse>;
+    getVirtualSelectedParentBlueScore(): Promise<Rpc.VirtualSelectedParentBlueScoreResponse>;
 }
 //# sourceMappingURL=rpc.d.ts.map
