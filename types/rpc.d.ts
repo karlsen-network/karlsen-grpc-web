@@ -20,6 +20,7 @@ export namespace RPC {
 		outpoint: Outpoint;
 		utxoEntry: UTXOEntry;
 		transaction: Transaction;
+		isCoinbase:boolean;
 	}
 
 	interface Outpoint{
@@ -27,10 +28,16 @@ export namespace RPC {
 		index: number;
 	}
 
+	interface ScriptPublicKey{
+		version:number;
+		scriptPublicKey:string;
+	}
+
 	interface UTXOEntry{
 		amount: number;
-		scriptPubKey: string;
-		blockBlueScore: number; 
+		scriptPublicKey: ScriptPublicKey;
+		blockBlueScore: number;
+		isCoinbase: boolean; 
 	}
 
 	interface SubmitTransactionRequest{
@@ -65,7 +72,7 @@ export namespace RPC {
 
 	interface TransactionOutput{
 		amount: number;
-		scriptPubKey: string;
+		scriptPublicKey: ScriptPublicKey;
 	}
 
 
@@ -205,6 +212,15 @@ export namespace RPC {
 		virtualSelectedParentBlueScore: number;
 	}
 
+	interface NotifyUtxosChangedResponse{
+		error: Error;
+	}
+
+	interface UtxosChangedNotification{
+		added:UTXOsByAddressesEntry[];
+		removed:UTXOsByAddressesEntry[];
+	}
+
 	declare type callback<T> = (result: T) => void;
 }
 
@@ -215,9 +231,11 @@ export interface IRPC {
 	submitTransaction(tx: RPC.SubmitTransactionRequest): Promise<RPC.SubmitTransactionResponse>;
 	getVirtualSelectedParentBlueScore(): Promise<RPC.VirtualSelectedParentBlueScoreResponse>;
 	
-	subscribeChainChanged(callback:Rpc.callback<Rpc.ChainChangedNotification>): Promise<RPC.NotifyChainChangedResponse>;
-	subscribeBlockAdded(callback:Rpc.callback<Rpc.BlockAddedNotification>): Promise<RPC.NotifyBlockAddedResponse>;
-	subscribeVirtualSelectedParentBlueScoreChanged(callback:RPC.callback<Rpc.VirtualSelectedParentBlueScoreChangedNotification>): Promise<RPC.NotifyVirtualSelectedParentBlueScoreChangedResponse>;
+	subscribeChainChanged(callback:Rpc.callback<Rpc.ChainChangedNotification>): RPC.SubPromise<RPC.NotifyChainChangedResponse>;
+	subscribeBlockAdded(callback:Rpc.callback<Rpc.BlockAddedNotification>): RPC.SubPromise<RPC.NotifyBlockAddedResponse>;
+	subscribeVirtualSelectedParentBlueScoreChanged(callback:RPC.callback<Rpc.VirtualSelectedParentBlueScoreChangedNotification>): RPC.SubPromise<RPC.NotifyVirtualSelectedParentBlueScoreChangedResponse>;
+	subscribeUtxosChanged(addresses:string[], callback:Rpc.callback<Rpc.UtxosChangedNotification>): RPC.SubPromise<RPC.NotifyUtxosChangedResponse>;
+	unSubscribeUtxosChanged(uid:string='');
 
 	request?(method:string, data:any);
 }
