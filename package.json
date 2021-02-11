@@ -6,12 +6,11 @@
   "author": "ASPECTRON Inc.",
   "license": "ISC",
   "scripts": {
-    "build": "tsc",
     "watch": "tsc --watch",
-    "prepare": "npm run build"
+    "prepublishOnly": "rm -rf ./dist && tsc"
   },
   "dependencies": {
-    "@aspectron/kaspa-grpc-web": "git+https://github.com/aspectron/kaspa-grpc-web"
+    "@aspectron/flow-grpc-web": "aspectron/flow-grpc-web"
   },
   "devDependencies": {
     "@types/node": "^14.14.9",
