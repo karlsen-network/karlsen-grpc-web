@@ -42,7 +42,7 @@ export class RPC implements IRPC{
 	constructor(options:any={}){
 		this.options = Object.assign({
 			reconnect: true,
-			verbose : false,
+			verbose : true,
 			uid:(Math.random()*1000).toFixed(0)
 		}, options||{});
 
@@ -51,7 +51,7 @@ export class RPC implements IRPC{
 			console,
 			`[Kaspa gRPC ${this.options.uid}]:`
 		);
-
+		this.verbose = this.options.verbose;
 		this.pending = {};
 		this.reconnect = this.options.reconnect;
 		this.client = new FlowGRPCWeb(options.clientConfig||{});
@@ -86,7 +86,7 @@ export class RPC implements IRPC{
 	}
 	async _connect() {
 		// this.reconnect = true;
-		this.verbose && this.log('gRPC Client connecting to', this.options.host);
+		this.verbose && this.log('gRPC Client connecting to', this.options.clientConfig);
 		const RPC = await this.getServiceClient();
 
 		this.stream = RPC.MessageStream();
@@ -114,7 +114,8 @@ export class RPC implements IRPC{
 			// console.log("client:",error);
 			this.errorCBs.forEach(fn=>fn(error.toString(), error));
 			this.verbose && this.log('stream:error', error);
-			reconnect();
+			if(error?.code != 'TIMEOUT' || !this.isConnected)
+				reconnect();
 		})
 		this.stream.on('end', (...args:any) => {
 			this.verbose && this.log('stream:end', ...args);
@@ -200,6 +201,7 @@ export class RPC implements IRPC{
     _setConnected(isConnected:boolean){
 		if(this.isConnected == isConnected)
 			return;
+		this.log("_setConnected", this.isConnected, isConnected)
 		this.isConnected = isConnected;
 
 		let cbs = isConnected?this.connectCBs:this.disconnectCBs;
@@ -225,6 +227,7 @@ export class RPC implements IRPC{
 	}
 
 	disconnect() {
+		console.log("disconnect", this.stream?.id)
 		if(this.reconnect_dpc) {
 			clearDPC(this.reconnect_dpc);
 			delete this.reconnect_dpc;
