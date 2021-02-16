@@ -138,7 +138,7 @@ export class RPC implements IRPC{
 	}
 	initIntake(stream:IStream) {
         stream.on('data',(data:any) => {
-        	this.log("initIntake:data", data)
+        	this.verbose && this.log("initIntake:data", data)
             if(data.payload) {
                 let name = data.payload;
                 let payload = data[name];
@@ -201,7 +201,7 @@ export class RPC implements IRPC{
     _setConnected(isConnected:boolean){
 		if(this.isConnected == isConnected)
 			return;
-		this.log("_setConnected", this.isConnected, isConnected)
+		this.verbose && this.log("_setConnected", this.isConnected, isConnected)
 		this.isConnected = isConnected;
 
 		let cbs = isConnected?this.connectCBs:this.disconnectCBs;
