@@ -38,6 +38,7 @@ export class RPC implements IRPC{
 	serviceClient:any;
 	serviceClientSignal: DeferredPromise;
 	log:Function;
+	streamUid:string='';
 
 	constructor(options:any={}){
 		this.options = Object.assign({
@@ -81,6 +82,9 @@ export class RPC implements IRPC{
 			*/
 		})
 		this.connect();
+	}
+	setStreamUid(uid:string){
+		this.streamUid = uid;
 	}
 	async getServiceClient(){
 		await this.serviceClientSignal;
@@ -178,7 +182,7 @@ export class RPC implements IRPC{
         this.intakeHandler = fn;
     }
 	processQueue(){
-		if(!this.isReady)
+		if(!this.isReady || !this.streamUid)
 			return
 
 		let item:QueueItem|undefined = this.queue.shift();
@@ -189,7 +193,7 @@ export class RPC implements IRPC{
             let handlers:QueueItem[] = this.pending[resp];
             handlers.push(item);
 
-			let req:any = {};
+			let req:any = {__streamuid__:this.streamUid};
 			req[item.method] = item.data;
 			this.stream.write(req);
 
