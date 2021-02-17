@@ -144,7 +144,7 @@ export class RPC implements IRPC{
 	}
 	initIntake(stream:IStream) {
         stream.on('data',(data:any) => {
-        	this.verbose && this.log("initIntake:data", data)
+        	this.verbose && this.log("initIntake:data", "stream-id:"+stream.id, data)
             if(data.payload) {
                 let name = data.payload;
                 let payload = data[name];
