@@ -1,6 +1,6 @@
 {
   "name": "@kaspa/grpc-web",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "description": "Web gRPC client for kaspa-wallet",
   "main": "dist/index.js",
   "author": "ASPECTRON Inc.",
@@ -10,7 +10,7 @@
     "prepublishOnly": "rm -rf ./dist && rm -f package-lock.json && npm install && tsc"
   },
   "dependencies": {
-    "@aspectron/flow-grpc-web": ">=0.0.2"
+    "@aspectron/flow-grpc-web": ">=0.0.4"
   },
   "devDependencies": {
     "@types/node": "^14.14.9",
