@@ -60,6 +60,12 @@ export class RPC implements IRPC{
 
 		this.client.on("ready", (clients:any)=>{
 			console.log("gRPCWeb::::clients", clients)
+			if(this.serviceClient){
+				dpc(100, ()=>{
+					this.reconnectStream();
+				})
+				return
+			}
 			let {RPC} = clients;
 			this.serviceClient = RPC;
 			this.serviceClientSignal.resolve();
@@ -82,9 +88,25 @@ export class RPC implements IRPC{
 	}
 	connect(){
 		this.reconnect = true;
-		return this._connect();
+		return this.reconnectStream();
 	}
-	async _connect() {
+	reconnectStream(){
+		this._setConnected(false);
+		if(this.reconnect_dpc) {
+			clearDPC(this.reconnect_dpc);
+			delete this.reconnect_dpc;
+		}
+
+		this.clearPending();
+		delete this.stream;
+		//delete this.client;
+		if(this.reconnect) {
+			this.reconnect_dpc = dpc(1000, () => {
+				this._reconnectStream();
+			})
+		}
+	}
+	async _reconnectStream() {
 		// this.reconnect = true;
 		this.verbose && this.log('gRPC Client connecting to', this.options.clientConfig);
 		const RPC = await this.getServiceClient();
@@ -94,32 +116,16 @@ export class RPC implements IRPC{
 		this.isReady = true;
 		this.processQueue();
 
-		const reconnect = () => {
-			this._setConnected(false);
-			if(this.reconnect_dpc) {
-				clearDPC(this.reconnect_dpc);
-				delete this.reconnect_dpc;
-			}
-
-			this.clearPending();
-			delete this.stream;
-			//delete this.client;
-			if(this.reconnect) {
-				this.reconnect_dpc = dpc(1000, () => {
-					this._connect();
-				})
-			}
-		}
 		this.stream.on('error', (error:any) => {
 			// console.log("client:",error);
 			this.errorCBs.forEach(fn=>fn(error.toString(), error));
 			this.verbose && this.log('stream:error', error);
 			if(error?.code != 'TIMEOUT' || !this.isConnected)
-				reconnect();
+				this.reconnectStream();
 		})
 		this.stream.on('end', (...args:any) => {
 			this.verbose && this.log('stream:end', ...args);
-			reconnect();
+			this.reconnectStream();
 		});
 
 		await new Promise<void>((resolve)=>{
