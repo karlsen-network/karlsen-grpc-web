@@ -10,7 +10,7 @@
     "prepublishOnly": "rm -rf ./dist && rm -f package-lock.json && npm install && tsc"
   },
   "dependencies": {
-    "@aspectron/flow-grpc-web": ">=0.0.5"
+    "@aspectron/flow-grpc-web": ">=0.0.6"
   },
   "devDependencies": {
     "@types/node": "^14.14.9",
