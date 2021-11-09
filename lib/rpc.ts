@@ -313,8 +313,8 @@ export class RPC implements IRPC{
 		this.unSubscribe("notifyUtxosChangedRequest", uid);
 	}
 
-	getBlock(hash:string){
-		return this.request<Rpc.BlockResponse>('getBlockRequest', {hash, includeBlockVerboseData:true});
+	getBlock(hash:string, includeTransactions:boolean=true){
+		return this.request<Rpc.BlockResponse>('getBlockRequest', {hash, includeTransactions});
 	}
 	getTransactionsByAddresses(startingBlockHash:string, addresses:string[]){
 		return this.request<Rpc.TransactionsByAddressesResponse>('getTransactionsByAddressesRequest', {

@@ -43,6 +43,7 @@ export namespace RPC {
 
 	interface SubmitTransactionRequest{
 		transaction: Transaction;
+		allowOrphan:boolean;
 	}
 
 	interface SubmitTransactionResponse{
@@ -69,6 +70,16 @@ export namespace RPC {
 		previousOutpoint: Outpoint;
 		signatureScript: string;
 		sequence: number;
+		sigOpCount: number;
+		verboseData:TransactionInputVerboseData;
+	}
+
+	interface TransactionInputVerboseData{
+		transactionId:string;
+		hash:string;
+		mass:number;
+		blockHash:string;
+		blockTime:number;
 	}
 
 	interface TransactionOutput{
@@ -176,13 +187,21 @@ export namespace RPC {
 
 	interface BlockHeaderMessage{
 		version: number;
-		parentHashes:bytes;
+		parents:BlockLevelParents[];
 		hashMerkleRoot: bytes;
 		acceptedIdMerkleRoot: bytes;
 		utxoCommitment: bytes;
 		timestamp: number;
 		bits: number;
 		nonce: number;
+		daaScore:number;
+		blueWork:number;
+		pruningPoint:string;
+		blueScore:number;
+	}
+
+	interface BlockLevelParents{
+		parentHashes:string[]
 	}
 
 	interface ChainChangedNotification{
@@ -247,7 +266,7 @@ export namespace RPC {
 }
 
 export interface IRPC {
-	getBlock(blockHash:string): Promise<RPC.BlockResponse>;
+	getBlock(blockHash:string, includeTransactions:boolean=true): Promise<RPC.BlockResponse>;
 	getTransactionsByAddresses(startingBlockHash:string, addresses:string[]): Promise<RPC.TransactionsByAddressesResponse>;
 	getUtxosByAddresses(addresses:string[]): Promise<RPC.UTXOsByAddressesResponse>;
 	submitTransaction(tx: RPC.SubmitTransactionRequest): Promise<RPC.SubmitTransactionResponse>;
@@ -262,6 +281,7 @@ export interface IRPC {
 	unSubscribe(eventName:string, uid:string='');
 
 	request?(method:string, data:any);
+
 
 	onConnect(cb:Function):void;
 	onDisconnect(cb:Function):void;

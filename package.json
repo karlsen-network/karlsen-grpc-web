@@ -1,6 +1,6 @@
 {
   "name": "@kaspa/grpc-web",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Web gRPC client for kaspa-wallet",
   "main": "dist/index.js",
   "author": "ASPECTRON Inc.",
