@@ -1,9 +1,16 @@
 {
-  "name": "@kaspa/grpc-web",
+  "name": "@karlsen/grpc-web",
   "version": "1.0.2",
-  "description": "Web gRPC client for kaspa-wallet",
+  "description": "Web gRPC client for karlsen-wallet",
   "main": "dist/index.js",
-  "author": "ASPECTRON Inc.",
+  "authors": [
+    {
+      "name": "ASPECTRON Inc."
+    },
+    {
+      "name": "Karlsen Developers"
+    }
+  ],
   "license": "ISC",
   "scripts": {
     "watch": "tsc --watch",
