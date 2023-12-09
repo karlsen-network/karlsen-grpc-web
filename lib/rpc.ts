@@ -50,7 +50,7 @@ export class RPC implements IRPC{
 		this.log = Function.prototype.bind.call(
 			console.log,
 			console,
-			`[Kaspa gRPC ${this.options.uid}]:`
+			`[Karlsen gRPC ${this.options.uid}]:`
 		);
 		this.verbose = this.options.verbose;
 		this.pending = {};
