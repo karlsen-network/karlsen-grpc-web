@@ -1,6 +1,6 @@
 {
   "name": "@karlsen/grpc-web",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Web gRPC client for karlsen-wallet",
   "main": "dist/index.js",
   "authors": [
